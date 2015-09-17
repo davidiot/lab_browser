@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 
 /**
@@ -18,6 +19,8 @@ public class BrowserModel {
     // state
     private URL myHome;
     private URL myCurrentURL;
+    private static final String errorResources = "resources/error";
+    private ResourceBundle myErrorResource;
     private int myCurrentIndex;
     private List<URL> myHistory;
     private Map<String, URL> myFavorites;
@@ -32,6 +35,7 @@ public class BrowserModel {
         myCurrentIndex = -1;
         myHistory = new ArrayList<>();
         myFavorites = new HashMap<>();
+        myErrorResource = ResourceBundle.getBundle(errorResources);
     }
 
     /**
@@ -42,7 +46,8 @@ public class BrowserModel {
             myCurrentIndex++;
             return myHistory.get(myCurrentIndex);
         }
-        return null;
+        throw new BrowserException(myErrorResource.getString("next"));
+
     }
 
     /**
@@ -53,7 +58,7 @@ public class BrowserModel {
             myCurrentIndex--;
             return myHistory.get(myCurrentIndex);
         }
-        return null;
+        throw new BrowserException(myErrorResource.getString("back"));
     }
 
     /**
@@ -119,7 +124,7 @@ public class BrowserModel {
         if (name != null && !name.equals("") && myFavorites.containsKey(name)) {
             return myFavorites.get(name);
         }
-        return null;
+        throw new BrowserException(myErrorResource.getString("getFavorite"));
     }
 
     // deal with a potentially incomplete URL
@@ -137,7 +142,7 @@ public class BrowserModel {
                     // e.g., let user leave off initial protocol
                     return new URL(PROTOCOL_PREFIX + possible);
                 } catch (MalformedURLException eee) {
-                    return null;
+                    throw new BrowserException(myErrorResource.getString("completeURL"));
                 }
             }
         }
